@@ -1,0 +1,52 @@
+---
+---
+
+@import "minima";
+
+.red-text {
+  color: #FF0000; /* Or any other color code */
+}
+
+.toc {
+  border: 1px solid #e0e0e0;
+  padding: 1rem;
+  margin: 1.5rem 0;
+  background: #fafafa;
+}
+
+.toc__title {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.toc__list {
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+}
+
+.toc__item {
+  margin: 0.25rem 0;
+}
+
+.toc__item--h3 {
+  margin-left: 2rem;
+  font-size: 0.95em;
+}
+
+.toc__item--h2 {
+  margin-left: 1rem;
+}
+
+.toc__item--h1 {
+  margin-left: 0;
+  font-weight: 600;
+}
+
+.toc__link {
+  text-decoration: none;
+}
+
+.toc__link:hover {
+  text-decoration: underline;
+}

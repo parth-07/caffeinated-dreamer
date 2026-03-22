@@ -1,0 +1,18 @@
+---
+layout: default
+---
+
+{% if page.toc %}
+<nav class="toc" aria-label="Table of Contents">
+  <div class="toc__title">On this page</div>
+  <ol class="toc__list" data-toc></ol>
+</nav>
+{% endif %}
+
+<article itemprop="articleBody">
+  {{ content }}
+</article>
+
+{% if page.toc %}
+<script src="{{ "/assets/toc.js" | relative_url }}" defer></script>
+{% endif %}
