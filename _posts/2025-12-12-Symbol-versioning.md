@@ -1,55 +1,57 @@
 ---
 layout: post
-title: "Symbol versioning: What, Why and How"
+title: "Symbol versioning: What and Why?"
 toc: true
 ---
 
 # What is this symbol versioning?
 
 Symbol versioning allows adding version information to symbols. This allows
-you to define multiple versions of the same function, for example, `readFoo@V1` and
-`readFoo@V2`, and allows users of the shared library to decide which variant they want
-to use.
+you to define multiple versions of the same function in your library,
+for example, `readFoo@V1` and `readFoo@V2`, and your library users can decide
+which variant they want to use.
 
-*Why is this helpful?*
+# Why is it helpful?
 
-It is helpful because it helps to update libraries
-while still keeping them backward compatible.
+It is helpful because it helps to update libraries while still keeping them backward compatible.
+A program does not need to be modified / rebuilt when using newer versions of a library that use
+symbol versioning for backward-compatibility.
 
-*Ah, I see. That sounds cool. But how exactly does it help with backward compatibility?*.
+## This sounds cool! How exactly does symbol versioning help with backward compatibility?
 
-Let's understand it better.
-
-# How exactly does symbol versioning help with backward compatibility?
+![libCJON without versioning]({{site.baseurl}}/assets/Linker/libCJSONWithoutVersioning.png)
 
 Let's say we have a JSON library `CJSON` that allows to read and write JSON files, and it
 exposes a function `writeJSON(JSONObject json, const char *filename)`. This function
 writes a JSON object to a file. Now let's say that we want to add a new parameter
-`JSONWriteConfig writeConfig` this function. This parameter stores configuration such
-as the formatting to use when print the JSON object to the file.
+`JSONWriteConfig writeConfig` to this function. This parameter stores configuration such
+as the formatting to use when printing the JSON object to the file.
 
-Here's the key issue: If we add this new parameter to `writeJSON` API and ships
+**Here's the key issue:** If we add this new parameter to `writeJSON` API and ships
 the updated library, then all programs that are using `CJSON` shared library will stop working.
 They all expect `writeJSON(JSONObject json, const char *filename)` function but the library
-does not expose this function anymore. You have to understand that this all may happen without
-the knowledge or any sort of permission from from the program that is now suddenly not
-working. A program, let's say `foo.out`, is using `libCJSON.so` from the system. The system
-updates and now we have the updated `libCJSON.so` that has the updated `writeJSON` signature.
-The program `foo` automatically starts using the updated `libCJSON.so` as the newer `libCJSON.so`
+does not expose this function anymore. Remember that this all may happen without
+the knowledge or any sort of permission from the program that is now suddenly not
+working. A program, let's say `ProgA`, is using `libCJSON.so` from the system. The system
+updates and now we have the updated `libCJSON.so` that has the updated `writeJSON` interface.
+The program `ProgA` automatically starts using the updated `libCJSON.so` as the newer `libCJSON.so`
 has replaced the older `libCJSON.so` in the system.
+
+![libCJSON with versioning]({{site.baseurl}}/assets/Linker/libCJSONWithVersioning.png)
 
 With symbol versioning, the updated `libCJSON.so` can somehow contains both the variants:
 `writeJSON(JSONObject json, const char *filename)` and
 `writeJSON(JSONObject json, const char *filename, JSONWriteConfig writeConfig)` and the old programs
-magically use the *right* variant. Note tha `libCJSON.so`, as the name suggests, is a C library and
+magically use the *right* variant. Note that `libCJSON.so`, as the name suggests, is a C library and
 thus there is no inherent concept of function overloading.
 
 ## I see. This got me a little curious. How was backward compatibility handled before?
 
+
 `soname` property is typically used to associate versions with a shared library so that
 programs do not accidentally use incompatible shared library versions. Note that it is not *exactly*
-handling backward compatibility, it is just providing a method to quickly identify
-incompatible shared libraries and report an easy to understand error.
+handling backward compatibility, it is a mechansim to quickly identify
+incompatible shared libraries and report an error.
 
 For the nerds: Shared library's `soname` is stored in the `DT_SONAME` field of the `.dynamic` section.
 
@@ -562,18 +564,47 @@ Congratulations! You pass the symbol versioning symbol resolution test.
 
 # How is symbol versioning implemented?
 
-## Compiler side of the picture
-
 Enabling symbol versioning requires support from the compiler, linker
 and the loader. We are majorly focussed on the linker picture in this
 article, though we will briefly discuss the compiler and the runtime
 role as well.
 
+## Compiler side of the picture
+
 The compile role here is relatively straightforward. Whenever the compiler
 sees `__asm__(".symver foo, foo@V1")` directive, then it changes all the
-reference / definition of `foo` to `foo@V1`, and the symbol table contains
-both the `foo` and `foo@V1` wit.
+reference / definition of `foo` to `foo@V1`. If `foo` was a definition, then
+`foo@V1` is an alias to `foo` and the symbol table contains both the `foo` and
+`foo@V1`. And if `foo` was not a definition, then `foo@V1` effectively replaces
+`foo` and thus the symbol table just contains `foo@V1`.
+
+## Loader side of the picture
+
+We will see loader side of the picture first because it will make it easier to
+understand why linker do what it does.
+
+We will not go in too much depth for loader here, just the information necessary
+to understand symbol versioning at some level.
+
+Loader goes over each module's dynamic symbol table and symbol versioning sections.
+Symbol versioning sections are as follows:
+
+- `.gnu.version (SHT_GNU_versym)`
+
+  It is an array of
+
+- `.gnu.version_d (SHT_GNU_verdef)`
+
+- `.gnu.version_r (SHT_GNU_verneed)`
 
 ## Linker side of the picture
 
 The linker role in enabling symbol versioning is much more involved.
+
+
+We will understand the linker role in two key parts: Creating a shared library with symbol versioning, and
+Creating an executable that uses shared libraries with symbol versioning.
+
+### Creating a shared library with symbol versioning
+
+

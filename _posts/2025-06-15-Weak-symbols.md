@@ -35,4 +35,13 @@ readelf -s 1.o
 # 5: 000000000000000b    11 FUNC    WEAK   DEFAULT    1 bar
 ```
 
-I will start by listing and briefly discussing the differences between global and weak symbols. We will then see some of the use cases that have motivated the weak symbol feature.
+The key differences between `global` and `weak` symbol are:
+- It is an error to have multiple defined `global` symbols of the same name. It is allowed
+  to have multiple defined `weak` symbols of the same name. In this case, the linker resolves
+  the symbol name to the first `weak` symbol of the name that it sees. When we have
+  a defined `global` and a defined `weak` symbol of the same name, then the `global` definition
+  wins.
+- It is an error have an undefined `global` symbol reference to be unsatisifed. It is allowed
+  to have undefined `weak` symbol references. Their value is considered to be 0.
+- An undefined `global` symbol reference is a candidate for pulling an archive member,
+  whereas an undefined `weak` symbol reference is not.

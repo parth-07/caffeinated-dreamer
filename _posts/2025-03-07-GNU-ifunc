@@ -1,4 +1,6 @@
 ---
 layout: post
-title: "Symbol versioning: What, Why and How"
+title: "Linker handling of GNU ifunc functions"
+toc: true
 ---
+
