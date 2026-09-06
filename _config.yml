@@ -34,6 +34,18 @@ plugins:
   - jekyll-feed
   - jekyll-toc
 
+collections:
+  linker:
+    output: true
+    permalink: /:collection/:path
+  AArch64:
+    output: false
+  ARM:
+    output: false
+  x86-64:
+    output: false
+
+
 # Exclude from processing.
 # The following items will not be processed, by default.
 # Any item listed under the `exclude:` key here will be automatically added to
