@@ -1,0 +1,15 @@
+- Overview of different types of RISCV relaxations
+- Symbol versioning series
+- String merging optimization
+- How does glibc loader computes static TLS offsets
+- TLS series, starting with static TLS
+- What an ordinary user needs to know about linux filesystem and filesystem-related commands
+- ZCMT riscv extension
+- dlopen binding and symbol resolution rules
+- What are the .hash and .gnu.hash sections
+- What are just symbols and why are they useful
+- Understading segment's virtual address and alignment
+- Where all does linker use the sysroot
+- Different profilers
+- How much performance impact does GOT / PLT indirection has
+- What all profiling tools an ordinary developer needs to know!
