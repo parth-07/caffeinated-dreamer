@@ -13,3 +13,5 @@
 - Different profilers
 - How much performance impact does GOT / PLT indirection has
 - What all profiling tools an ordinary developer needs to know!
+
+- Lift simulation frontend!
